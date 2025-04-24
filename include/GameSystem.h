@@ -5,7 +5,6 @@
 class GameSystem {
     Player* player;
     int currentStage = 1;
-    void handleVictoryBlessing();
     void handleCombat();
     void handleShop();
     void handleEvent();
@@ -14,4 +13,6 @@ public:
     explicit GameSystem(Player* player);
     void run();
     int getCurrentStage() const;
+private:
+    void handleVictoryBlessing();
 };
