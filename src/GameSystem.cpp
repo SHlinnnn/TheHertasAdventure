@@ -132,6 +132,7 @@ void GameSystem::handleCombat() {
     if (player->getFinalHP() > 0) {
         if (currentStage != 13) {
             handleVictoryBlessing();
+        }
     }
 }
 
