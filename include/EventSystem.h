@@ -3,13 +3,13 @@
 
 class EventSystem {
 public:
-    enum EventType {
-        NOTHING,        // 20%
-        STAT_BOOST,     // 45%
-        STAT_REDUCE,    // 20%
-        ELITE_BATTLE,   // 10%
-        RESURRECTION    // 5%
+    enum Result {
+        NOTHING,
+        STAT_UP,
+        STAT_DOWN,
+        HARD_BATTLE,
+        RESURRECTION
     };
 
-    static void triggerRandomEvent(Player& player, int currentStage);
+    static Result trigger(Player& player, int stage);
 };
