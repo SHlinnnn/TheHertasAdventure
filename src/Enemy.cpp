@@ -1,7 +1,7 @@
 #include "Enemy.h"
 #include <random>
 #include <cmath>
-
+#include <iostream>
 Enemy::Enemy(int stage, Difficulty diff) {
     generateName(stage);
     scaleStats(stage, diff);
