@@ -1,12 +1,14 @@
 #pragma once
 #include <string>
+#include "Difficulty.h"
 
 class Enemy {
 public:
     std::string name;
-    int hp, atk, spd;
-    int stageLevel;
-    
+    int hp;
+    int atk;
+    int spd;
+
     Enemy(int stage, Difficulty diff);
     void printStats() const;
 
