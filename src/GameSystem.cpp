@@ -8,12 +8,17 @@
 
 using namespace std;
 
-// 核心战斗系统 
+//核心战斗系统
 void GameSystem::handleCombat() {
     Enemy enemy(currentStage, difficulty);
     Player& player = *this->player;
 
-    cout << "\n第 " << currentStage << " 关\n";
+    // 关卡开始前商店检查
+    if (currentStage == 5 || currentStage == 9 || currentStage == 13) {
+        handleShop();
+    }
+
+    cout << "\n=== 第 " << currentStage << " 关 ===\n";
     enemy.printStats();
     player.printStatus();
 
@@ -24,15 +29,15 @@ void GameSystem::handleCombat() {
 
     if (playerSpeed > enemySpeed) {
         playerAttacks = floor(playerSpeed / enemySpeed);
-        cout << "✦ 速度优势！你将攻击 " << playerAttacks << " 次！\n";
+        cout << "速度优势！你将攻击 " << playerAttacks << " 次！\n";
     } else {
         enemyAttacks = floor(enemySpeed / playerSpeed);
-        cout << "⚠ 敌人速度更快！将攻击 " << enemyAttacks << " 次！\n";
+        cout << "敌人速度更快！将攻击 " << enemyAttacks << " 次！\n";
     }
 
     // 战斗循环
     while (enemy.hp > 0 && player.getFinalHP() > 0) {
-        // 玩家攻击阶段
+        // 玩家攻击阶段（保持原有逻辑）
         for (int i = 0; i < playerAttacks; ++i) {
             int damage = player.getFinalATK();
             enemy.hp -= damage;
@@ -40,7 +45,7 @@ void GameSystem::handleCombat() {
             if (enemy.hp <= 0) break;
         }
 
-        // 敌人攻击阶段 
+        // 敌人攻击阶段
         if (enemy.hp > 0) {
             for (int i = 0; i < enemyAttacks; ++i) {
                 int damage = enemy.atk;
@@ -51,10 +56,10 @@ void GameSystem::handleCombat() {
         }
     }
 
-    // 战斗结果处理
+    //战斗结果处理
     if (player.getFinalHP() <= 0) {
         if (player.hasResurrection) {
-            cout << "\n 再创世！\n";
+            cout << "\n再创世发动！\n";
             player.useResurrection();
             cout << "生命值恢复至 100！\n";
             enemy.hp = 0; // 强制胜利
@@ -63,22 +68,16 @@ void GameSystem::handleCombat() {
         }
     }
 
-    // 战后处理
+    //战后处理
     player.gold += 50;
     cout << "\n获得 50 金币（当前总计：" << player.gold << "）\n";
-
-    // 商店触发逻辑（第5/9关前）
-    if ((currentStage == 4 || currentStage == 8) && !player.hasVisitedShop) {
-        handleShop();
-        player.hasVisitedShop = true;
-    }
 }
 
-//商店系统
+// 商店系统（优化后)
 void GameSystem::handleShop() {
     vector<Blessing> blessings = BlessingSystem::getShopBlessings(currentStage);
     
-    cout << "\n══════════ 星际商店 ══════════\n";
+    cout << "\n=== 星际商店 ===\n";
     for (size_t i = 0; i < blessings.size(); ++i) {
         cout << i+1 << ". " << blessings[i].name 
              << " (价格：" << blessings[i].cost << " 金币)\n"
