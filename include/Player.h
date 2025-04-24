@@ -1,15 +1,13 @@
 #pragma once
 #include <string>
+#include "Difficulty.h"
 
 enum class Path { ABUNDANCE, DESTRUCTION, HUNT };
-enum Difficulty { EASY, MEDIUM, HARD };
 
 class Player {
 public:
-    // 游戏状态
     Path chosenPath;
-    Difficulty gameDifficulty;
-    int currentStage = 1;
+    Difficulty difficulty;
     
     // 基础属性
     int baseHP = 100;
@@ -21,9 +19,9 @@ public:
     int bonusATK = 0;
     int bonusSPD = 0;
     
-    // 经济系统
     int gold = 0;
     bool hasResurrection = false;
+    int currentStage = 1;
 
     Player(Path path, Difficulty diff);
     
@@ -32,7 +30,6 @@ public:
     int getFinalATK() const;
     int getFinalSPD() const;
     
-    // 系统方法
     void applyBlessing(int hp, int atk, int spd);
     void useResurrection();
     void printStatus() const;
