@@ -3,7 +3,6 @@
 #include <iostream>
 #include <limits>
 void clearInput();
-std::cout<<"欢迎来到大黑塔的奇幻冒险"<<"\n";
 void clearInput() {
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
@@ -44,7 +43,7 @@ int main() {
         Player* player = nullptr;
         
         while (true) {
-            std::cout << "\n===== 赫塔的冒险 =====\n"
+            std::cout << "\n===== 大黑塔的奇幻冒险 =====\n"
                       << "1. 新游戏\n"
                       << "2. 加载存档\n"
                       << "3. 退出\n"
