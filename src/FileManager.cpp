@@ -1,5 +1,6 @@
 #include "FileManager.h"
 #include <fstream>
+#include <iostream>
 
 #pragma pack(push, 1)
 struct SaveData {
