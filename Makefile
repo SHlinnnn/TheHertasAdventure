@@ -1,6 +1,6 @@
 CXX = g++
-CXXFLAGS = -std=c++17 -Iinclude -Wall -Wextra
-LDFLAGS = -lm
+CXXFLAGS = -std=c++17 -Iinclude -Wall -Wextra -finput-charset=UTF-8 -fexec-charset=UTF-8
+LDFLAGS = 
 
 SRC_DIR = src
 SRC = $(wildcard $(SRC_DIR)/*.cpp)
@@ -11,9 +11,6 @@ all: $(EXEC)
 
 $(EXEC): $(OBJ)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
 	rm -f $(OBJ) $(EXEC)
