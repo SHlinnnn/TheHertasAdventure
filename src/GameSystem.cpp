@@ -9,13 +9,35 @@ GameSystem::GameSystem(Player* player) : player(player) {}
 
 void GameSystem::run() {
     while (currentStage <= 13) {
-        try {
+        std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
+        
+        // 关键关卡强制战斗
+        if (currentStage == 1 || currentStage == 5 || currentStage == 9 || currentStage == 13) {
             handleCombat();
-            currentStage++;
-        } catch (const std::exception& e) {
-            std::cerr << "游戏结束: " << e.what() << std::endl;
-            break;
+        } 
+        // 普通关卡提供选择
+        else {
+            std::cout << "选择行动：\n"
+                      << "1. 探索事件\n"
+                      << "2. 主动战斗\n";
+            
+            int choice;
+            while (true) {
+                std::cin >> choice;
+                if (choice == 1) {
+                    handleEvent();
+                    break;
+                } else if (choice == 2) {
+                    handleCombat();
+                    break;
+                }
+                std::cout << "无效输入，请重新选择 (1-2): ";
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            }
         }
+        
+        currentStage++;
     }
     
     if (currentStage > 13) {
@@ -31,43 +53,49 @@ void GameSystem::handleCombat() {
     Enemy enemy(currentStage, player->difficulty);
     Player& p = *player;
     
-    std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
+    std::cout << "\n====== 战斗开始 ======\n";
     enemy.printStats();
     p.printStatus();
 
-    // 速度机制
-    int playerAttacks = 1;
-    int enemyAttacks = 1;
-    if (p.getFinalSPD() > enemy.spd) {
-        playerAttacks = p.getFinalSPD() / enemy.spd;
+    //速度机制
+    int playerSPD = p.getFinalSPD();
+    int enemySPD = enemy.spd;
+    int playerAttacks = 1, enemyAttacks = 1;
+
+    if (playerSPD > enemySPD) {
+        playerAttacks = playerSPD / enemySPD;
+        std::cout << "\n✦ 速度优势! 你将攻击 " << playerAttacks << " 次!\n";
+    } else if (enemySPD > playerSPD) {
+        enemyAttacks = enemySPD / playerSPD;
+        std::cout << "\n⚠ 敌人速度更快! 将攻击 " << enemyAttacks << " 次!\n";
     } else {
-        enemyAttacks = enemy.spd / p.getFinalSPD();
+        std::cout << "\n⚔ 双方速度相同!\n";
     }
 
-    // 战斗循环
+    //战斗循环
     while (enemy.hp > 0 && p.getFinalHP() > 0) {
-        // 玩家攻击
+        // 玩家攻击阶段
         for (int i = 0; i < playerAttacks; ++i) {
             int damage = p.getFinalATK();
             enemy.hp -= damage;
-            std::cout << "→ 造成 " << damage << " 点伤害，敌人剩余: " 
-                     << std::max(enemy.hp, 0) << std::endl;
+            std::cout << "[攻击" << i+1 << "] → 造成 " << damage 
+                      << " 伤害，敌人剩余: " << std::max(enemy.hp, 0) << "\n";
             if (enemy.hp <= 0) break;
         }
 
-        // 敌人攻击
+        // 敌人攻击阶段
         if (enemy.hp > 0) {
             for (int i = 0; i < enemyAttacks; ++i) {
                 int damage = enemy.atk;
                 p.baseHP -= damage;
-                std::cout << "← 受到 " << damage << " 点伤害，剩余生命: " 
-                         << p.getFinalHP() << std::endl;
+                std::cout << "[受击" << i+1 << "] ← 受到 " << damage 
+                          << " 伤害，剩余生命: " << p.getFinalHP() << "\n";
                 if (p.getFinalHP() <= 0) break;
             }
         }
     }
 
-    // 战斗结果
+    //战斗结果处理
     if (p.getFinalHP() <= 0) {
         if (p.hasResurrection) {
             p.useResurrection();
@@ -80,7 +108,6 @@ void GameSystem::handleCombat() {
     p.gold += 50;
     std::cout << "获得50金币，当前总计: " << p.gold << std::endl;
     
-    // 处理事件
     handleEvent();
 }
 
