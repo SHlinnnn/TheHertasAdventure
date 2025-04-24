@@ -1,5 +1,4 @@
 #include "Blessing.h"
-#include <vector>
 
 std::vector<Blessing> BlessingSystem::getShopBlessings(int currentStage) {
     int priceMultiplier = 1 + currentStage/5;
