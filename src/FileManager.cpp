@@ -1,7 +1,7 @@
 #include "FileManager.h"
 #include <fstream>
-#include <stdexcept>
 
+#pragma pack(push, 1)
 struct SaveData {
     Path path;
     Difficulty difficulty;
@@ -12,6 +12,7 @@ struct SaveData {
     int gold;
     bool hasResurrection;
 };
+#pragma pack(pop)
 
 bool FileManager::saveGame(const Player& player, int stage, 
                           const std::string& filename) {
@@ -20,7 +21,7 @@ bool FileManager::saveGame(const Player& player, int stage,
 
     SaveData data{
         player.chosenPath,
-        player.difficulty,
+        player.gameDifficulty,
         stage,
         player.bonusHP,
         player.bonusATK,
@@ -41,11 +42,9 @@ bool FileManager::loadGame(Player& player, int& stage,
     SaveData data;
     file.read(reinterpret_cast<char*>(&data), sizeof(SaveData));
     
-    if (file.gcount() != sizeof(SaveData)) {
-        return false;
-    }
+    if (file.gcount() != sizeof(SaveData)) return false;
 
-    player = Player(data.path);
+    player = Player(data.path, data.difficulty);
     player.bonusHP = data.bonusHP;
     player.bonusATK = data.bonusATK;
     player.bonusSPD = data.bonusSPD;
