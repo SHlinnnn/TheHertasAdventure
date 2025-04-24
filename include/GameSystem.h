@@ -5,7 +5,7 @@
 class GameSystem {
     Player* player;
     int currentStage = 1;
-
+    void handleVictoryBlessing();
     void handleCombat();
     void handleShop();
     void handleEvent();
