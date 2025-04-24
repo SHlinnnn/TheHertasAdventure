@@ -29,8 +29,10 @@ EventSystem::Result EventSystem::trigger(Player& player, int stage) {
             return STAT_DOWN;
         }
         
-        case HARD_BATTLE:
+        case HARD_BATTLE: {
+            std::cout << "虚空裂缝中涌出恐怖的虫群...\n";
             return HARD_BATTLE;
+        }
             
         case RESURRECTION:
             if (!player.hasResurrection) {
