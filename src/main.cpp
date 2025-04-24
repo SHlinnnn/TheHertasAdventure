@@ -1,81 +1,71 @@
 #include "GameSystem.h"
 #include "FileManager.h"
 #include <iostream>
-#include <limits>
 
-// 输入验证辅助函数
-template<typename T>
-T getValidInput(const std::string& prompt, T min, T max) {
-    T value;
-    while (true) {
-        std::cout << prompt;
-        if (std::cin >> value && value >= min && value <= max) {
-            break;
-        }
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        std::cerr << "无效输入，请重新输入 (" << min << "-" << max << ")\n";
-    }
-    return value;
+void showMainMenu() {
+    std::cout << "\n======== 大黑塔的冒险 ========\n"
+              << "1. 新的旅程\n"
+              << "2. 继续冒险\n"
+              << "3. 离开游戏\n"
+              << "请选择: ";
+}
+
+Path selectPath() {
+    int choice;
+    std::cout << "\n=== 选择命途 ===\n"
+              << "1. 丰饶 - 生命加成\n"
+              << "2. 毁灭 - 攻击加成\n"
+              << "3. 巡猎 - 速度加成\n"
+              << "请选择: ";
+    std::cin >> choice;
+    return static_cast<Path>(choice - 1);
 }
 
 int main() {
+    GameSystem game;
+    
     try {
-        GameSystem game;
-        
-        // 主界面
-        std::cout << "\n======== 星穹铁道：赫塔的冒险 ========\n";
-        const int choice = getValidInput<int>(
-            "1. 新旅程\n2. 继续冒险\n3. 离开\n选择: ", 1, 3);
-
-        if (choice == 1) {
-            const int diff = getValidInput<int>(
-                "\n=== 选择命途难度 ===\n"
-                "1. 简单（适合新人）\n"
-                "2. 普通（平衡体验）\n"
-                "3. 困难（星神挑战）\n"
-                "选择: ", 1, 3);
-            
-            game.startGame(static_cast<Difficulty>(diff-1));
-            
-            // 命途选择
-            const int pathChoice = getValidInput<int>(
-                "\n=== 选择命途 ===\n"
-                "1. 丰饶（生命加成）\n"
-                "2. 毁灭（攻击加成）\n"
-                "3. 巡猎（速度加成）\n"
-                "选择: ", 1, 3);
-            
-            game.selectPath(static_cast<Path>(pathChoice-1));
-        }
-        else if (choice == 2) {
-            std::string filename;
-            std::cout << "输入存档文件名: ";
-            std::cin >> filename;
-            
-            int loadedStage = 0;
-            if (!FileManager::loadGame(game.getPlayer(), loadedStage, filename)) {
-                throw std::runtime_error("无法加载存档文件");
+        while (true) {
+            showMainMenu();
+            int choice;
+            if (!(std::cin >> choice)) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                continue;
             }
-            game.setCurrentStage(loadedStage);
-        }
-        else {
-            return 0;
-        }
 
-        game.mainLoop();
-
-        // 自动存档提示
-        if (game.shouldAutoSave()) {
-            FileManager::saveGame(game.getPlayer(), 
-                                  game.getCurrentStage(), 
-                                  "autosave.dat");
-            std::cout << "进度已自动保存至 autosave.dat\n";
+            if (choice == 1) {
+                int diff;
+                std::cout << "\n=== 选择难度 ===\n"
+                          << "1. 简单\n2. 普通\n3. 困难\n选择: ";
+                std::cin >> diff;
+                
+                Path path = selectPath();
+                game.startGame(static_cast<Difficulty>(diff - 1));
+                game.getPlayer()->chosenPath = path;
+                game.mainLoop();
+                
+            } else if (choice == 2) {
+                std::string filename;
+                std::cout << "输入存档文件名: ";
+                std::cin >> filename;
+                
+                int stage;
+                if (FileManager::loadGame(*game.getPlayer(), stage, filename)) {
+                    game.setCurrentStage(stage);
+                    game.mainLoop();
+                } else {
+                    std::cerr << "存档加载失败！\n";
+                }
+                
+            } else if (choice == 3) {
+                break;
+            }
         }
-        
     } catch (const std::exception& e) {
-        std::cerr << "\n错误发生: " << e.what() << std::endl;
+        std::cerr << "发生错误: " << e.what() << std::endl;
         return 1;
     }
+    
     return 0;
 }
