@@ -9,11 +9,13 @@ class GameSystem {
     
     void showPathSelection();
     void handleCombat();
-    void handleEvent();
     void handleShop();
+    void handleEvent();
     void calculateAttackRounds();
     
 public:
-    void startGame();
+    void startGame(Difficulty diff);
     void mainLoop();
+    Player* getPlayer();
+    int getCurrentStage() const;
 };
