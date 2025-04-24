@@ -121,16 +121,28 @@ void GameSystem::handleShop() {
     }
 }
 
+// 修改src/GameSystem.cpp的handleEvent函数
 void GameSystem::handleEvent() {
     auto result = EventSystem::trigger(*player, currentStage);
     switch (result) {
+        case EventSystem::NOTHING:
+            std::cout << "平安无事...\n";
+            break;
         case EventSystem::STAT_UP:
             std::cout << "获得属性提升！\n";
+            break;
+        case EventSystem::STAT_DOWN:
+            std::cout << "属性暂时下降！\n";
+            break;
+        case EventSystem::HARD_BATTLE:
+            std::cout << "遭遇强敌！\n";
             break;
         case EventSystem::RESURRECTION:
             std::cout << "获得神秘复活祝福！\n";
             break;
-        // 其他事件处理...
+        default:
+            std::cout << "未知事件\n";
+            break;
     }
 }
 
