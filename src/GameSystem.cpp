@@ -1,14 +1,13 @@
 #include "GameSystem.h"
+#include "Enemy.h"
+#include "Blessing.h"
+#include "EventSystem.h"
 #include <iostream>
 #include <limits>
 
-void GameSystem::startGame(Difficulty diff) {
-    difficulty = diff;
-    currentStage = 1;
-    player = new Player(Path::DESTRUCTION, diff); // 默认命途，实际应由玩家选择
-}
+GameSystem::GameSystem(Player* player) : player(player) {}
 
-void GameSystem::mainLoop() {
+void GameSystem::run() {
     while (currentStage <= 13) {
         try {
             handleCombat();
@@ -20,25 +19,25 @@ void GameSystem::mainLoop() {
     }
     
     if (currentStage > 13) {
-        std::cout << "\n★★★★★ 恭喜通关！ ★★★★★\n";
+        std::cout << "\n★★★★★ 通关成功！ ★★★★★\n";
     }
 }
 
 void GameSystem::handleCombat() {
-    // 商店触发逻辑
     if (currentStage == 5 || currentStage == 9 || currentStage == 13) {
         handleShop();
     }
 
-    Enemy enemy(currentStage, difficulty);
+    Enemy enemy(currentStage, player->difficulty);
     Player& p = *player;
     
     std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
     enemy.printStats();
     p.printStatus();
 
-    // 速度机制计算
-    int playerAttacks = 1, enemyAttacks = 1;
+    // 速度机制
+    int playerAttacks = 1;
+    int enemyAttacks = 1;
     if (p.getFinalSPD() > enemy.spd) {
         playerAttacks = p.getFinalSPD() / enemy.spd;
     } else {
@@ -47,36 +46,94 @@ void GameSystem::handleCombat() {
 
     // 战斗循环
     while (enemy.hp > 0 && p.getFinalHP() > 0) {
-        // 玩家攻击阶段
-        for (int i = 0; i < playerAttacks && enemy.hp > 0; ++i) {
+        // 玩家攻击
+        for (int i = 0; i < playerAttacks; ++i) {
             int damage = p.getFinalATK();
             enemy.hp -= damage;
-            std::cout << "→ 造成 " << damage << " 点伤害，敌人剩余生命: " 
+            std::cout << "→ 造成 " << damage << " 点伤害，敌人剩余: " 
                      << std::max(enemy.hp, 0) << std::endl;
+            if (enemy.hp <= 0) break;
         }
 
-        // 敌人攻击阶段
+        // 敌人攻击
         if (enemy.hp > 0) {
-            for (int i = 0; i < enemyAttacks && p.getFinalHP() > 0; ++i) {
+            for (int i = 0; i < enemyAttacks; ++i) {
                 int damage = enemy.atk;
                 p.baseHP -= damage;
                 std::cout << "← 受到 " << damage << " 点伤害，剩余生命: " 
                          << p.getFinalHP() << std::endl;
+                if (p.getFinalHP() <= 0) break;
             }
         }
     }
 
-    // 战斗结果处理
+    // 战斗结果
     if (p.getFinalHP() <= 0) {
         if (p.hasResurrection) {
             p.useResurrection();
-            std::cout << "\n再创世！\n";
+            std::cout << "\n再创世!\n";
         } else {
             throw std::runtime_error("战斗失败");
         }
     }
 
-    // 战后处理
     p.gold += 50;
     std::cout << "获得50金币，当前总计: " << p.gold << std::endl;
+    
+    // 处理事件
+    handleEvent();
+}
+
+void GameSystem::handleShop() {
+    auto blessings = BlessingSystem::getShopBlessings(currentStage);
+    
+    std::cout << "\n=== 星际商店 ===\n";
+    for (size_t i = 0; i < blessings.size(); ++i) {
+        std::cout << i+1 << ". " << blessings[i].name 
+                 << " (" << blessings[i].cost << "金币)"
+                 << " +HP:" << blessings[i].hp
+                 << " +ATK:" << blessings[i].atk
+                 << " +SPD:" << blessings[i].spd << "\n";
+    }
+    
+    while (true) {
+        int choice;
+        std::cout << "\n选择 (0离开): ";
+        if (!(std::cin >> choice)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            continue;
+        }
+        
+        if (choice == 0) break;
+        if (choice < 1 || choice > static_cast<int>(blessings.size())) {
+            continue;
+        }
+        
+        Blessing selected = blessings[choice-1];
+        if (player->gold >= selected.cost) {
+            BlessingSystem::apply(*player, selected);
+            player->gold -= selected.cost;
+            std::cout << "购买成功: " << selected.name << "\n";
+        } else {
+            std::cout << "金币不足！\n";
+        }
+    }
+}
+
+void GameSystem::handleEvent() {
+    auto result = EventSystem::trigger(*player, currentStage);
+    switch (result) {
+        case EventSystem::STAT_UP:
+            std::cout << "获得属性提升！\n";
+            break;
+        case EventSystem::RESURRECTION:
+            std::cout << "获得神秘复活祝福！\n";
+            break;
+        // 其他事件处理...
+    }
+}
+
+int GameSystem::getCurrentStage() const {
+    return currentStage;
 }
