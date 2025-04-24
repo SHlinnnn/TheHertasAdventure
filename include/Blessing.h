@@ -1,5 +1,7 @@
 #pragma once
+#include <string>
 #include <vector>
+#include "Player.h"
 
 struct Blessing {
     std::string name;
