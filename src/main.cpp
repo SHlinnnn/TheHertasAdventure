@@ -2,8 +2,8 @@
 #include "FileManager.h"
 #include <iostream>
 #include <limits>
-
-std::cout<<"欢迎来到大黑塔的奇幻冒险”<<"\n";
+void clearInput();
+std::cout<<"欢迎来到大黑塔的奇幻冒险"<<"\n";
 void clearInput() {
     std::cin.clear();
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
