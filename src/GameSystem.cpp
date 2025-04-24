@@ -6,12 +6,9 @@
 #include <limits>
 
 GameSystem::GameSystem(Player* player) : player(player) {}
-
 void GameSystem::handleVictoryBlessing() {
     auto blessings = BlessingSystem::getShopBlessings(currentStage);
-    for (auto& bless : blessings) {
-        bless.cost = 0;
-    }
+    for (auto& bless : blessings) { bless.cost = 0; }
 
     std::cout << "\n=== 请选择祝福 ===\n";
     for (size_t i = 0; i < blessings.size(); ++i) {
@@ -26,14 +23,12 @@ void GameSystem::handleVictoryBlessing() {
         std::cout << "选择 (1-" << blessings.size() << "): ";
         if (std::cin >> choice && choice >= 1 && choice <= static_cast<int>(blessings.size())) {
             BlessingSystem::apply(*player, blessings[choice-1]);
-            std::cout << "已获得「" << blessings[choice-1].name << "」\n";
             break;
         }
         std::cin.clear();
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 }
-
 void GameSystem::run() {
     while (currentStage <= 13) {
         std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
