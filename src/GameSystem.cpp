@@ -7,6 +7,33 @@
 
 GameSystem::GameSystem(Player* player) : player(player) {}
 
+void GameSystem::handleVictoryBlessing() {
+    auto blessings = BlessingSystem::getShopBlessings(currentStage);
+    for (auto& bless : blessings) {
+        bless.cost = 0;
+    }
+
+    std::cout << "\n=== 请选择祝福 ===\n";
+    for (size_t i = 0; i < blessings.size(); ++i) {
+        std::cout << i+1 << ". " << blessings[i].name 
+                 << " (+HP:" << blessings[i].hp
+                 << " +ATK:" << blessings[i].atk
+                 << " +SPD:" << blessings[i].spd << ")\n";
+    }
+
+    int choice;
+    while (true) {
+        std::cout << "选择 (1-" << blessings.size() << "): ";
+        if (std::cin >> choice && choice >= 1 && choice <= static_cast<int>(blessings.size())) {
+            BlessingSystem::apply(*player, blessings[choice-1]);
+            std::cout << "已获得「" << blessings[choice-1].name << "」\n";
+            break;
+        }
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+}
+
 void GameSystem::run() {
     while (currentStage <= 13) {
         std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
@@ -107,9 +134,11 @@ void GameSystem::handleCombat() {
 
     p.gold += 50;
     std::cout << "获得50金币，当前总计: " << p.gold << std::endl;
-    
-    handleEvent();
+    if (player->getFinalHP() > 0) {
+        handleVictoryBlessing();
+    }
 }
+
 
 void GameSystem::handleShop() {
     auto blessings = BlessingSystem::getShopBlessings(currentStage);
