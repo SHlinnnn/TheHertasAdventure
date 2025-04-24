@@ -1,7 +1,7 @@
 #include "Blessing.h"
 
-std::vector<Blessing> BlessingSystem::getShopBlessings(int currentStage) {
-    int priceMultiplier = 1 + currentStage/5;
+std::vector<Blessing> BlessingSystem::getShopBlessings(int Stage) {
+    int priceMultiplier = 1 + Stage/5;
     
     return {
         {"丰檀生薪", 30, 0, 0, 80 * priceMultiplier},
@@ -10,6 +10,6 @@ std::vector<Blessing> BlessingSystem::getShopBlessings(int currentStage) {
         {"均衡增幅", 15, 15, 15, 150 * priceMultiplier}
     };
 }
-void BlessingSystem::applyBlessing(Player& player, const Blessing& blessing) {
-    player.applyBlessing(blessing.hpBonus, blessing.atkBonus, blessing.spdBonus);
+void BlessingSystem::apply(Player& player, const Blessing& blessing) {
+    player.applyBlessing(blessing.hp, blessing.atk, blessing.spd);
 }
