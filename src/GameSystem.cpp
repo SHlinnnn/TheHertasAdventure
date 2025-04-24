@@ -187,9 +187,28 @@ void GameSystem::handleEvent() {
         case EventSystem::STAT_DOWN:
             std::cout << "属性下降！\n";
             break;
-        case EventSystem::HARD_BATTLE:
-            std::cout << "遭遇强敌！\n";
+        case EventSystem::HARD_BATTLE:{
+            Enemy eliteEnemy(currentStage, player->difficulty);
+            eliteEnemy.name = "繁育·虫灾";
+            eliteEnemy.hp *= 3;  // 三倍血量
+            eliteEnemy.atk += 30; // 攻击强化
+            
+            std::cout << "\n███ 遭遇" << eliteEnemy.name << "！███\n";
+            std::cout << "生命值:" << eliteEnemy.hp << " 攻击力:" << eliteEnemy.atk << "\n";
+
+            // 强制进行特殊战斗
+            int originalHP = player->baseHP;
+            player->baseHP = player->getFinalHP(); // 保存当前血量
+            try {
+                handleCombat(); // 复用普通战斗逻辑
+                player->applyBlessing(30, 20, 15); // 胜利奖励
+                std::cout << "成功驱逐虫群！属性提升！\n";
+            } catch (...) {
+                player->baseHP = originalHP; // 恢复血量
+                throw std::runtime_error("虫群吞噬了你的意识...");
+            }
             break;
+        }
         case EventSystem::RESURRECTION:
             std::cout << "获得祝福：再创世！\n";
             break;
