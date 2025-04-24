@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include <random>
 #include <cmath>
+#include "Player.h"
 
 void Enemy::generateName(int stage) {
     std::string prefixes[] = {"幼年", "成年", "精英"};
