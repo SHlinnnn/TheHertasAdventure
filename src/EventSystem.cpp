@@ -1,6 +1,7 @@
 #include "EventSystem.h"
 #include <random>
 #include <cmath>
+#include <iostream>
 
 EventSystem::Result EventSystem::trigger(Player& player, int stage) {
     std::random_device rd;
