@@ -130,7 +130,8 @@ void GameSystem::handleCombat() {
     p.gold += 50;
     std::cout << "获得50金币，当前总计: " << p.gold << std::endl;
     if (player->getFinalHP() > 0) {
-        handleVictoryBlessing();
+        if (currentStage != 13) {
+            handleVictoryBlessing();
     }
 }
 
@@ -138,7 +139,7 @@ void GameSystem::handleCombat() {
 void GameSystem::handleShop() {
     auto blessings = BlessingSystem::getShopBlessings(currentStage);
     
-    std::cout << "\n=== 星际商店 ===\n";
+    std::cout << "\n=== 星际商店 ===\n"<<"当前金币： "<<player->gold<<"\n";
     for (size_t i = 0; i < blessings.size(); ++i) {
         std::cout << i+1 << ". " << blessings[i].name 
                  << " (" << blessings[i].cost << "金币)"
@@ -177,19 +178,19 @@ void GameSystem::handleEvent() {
     auto result = EventSystem::trigger(*player, currentStage);
     switch (result) {
         case EventSystem::NOTHING:
-            std::cout << "平安无事...\n";
+            std::cout << "无事发生...\n";
             break;
         case EventSystem::STAT_UP:
-            std::cout << "获得属性提升！\n";
+            std::cout << "属性提升！\n";
             break;
         case EventSystem::STAT_DOWN:
-            std::cout << "属性暂时下降！\n";
+            std::cout << "属性下降！\n";
             break;
         case EventSystem::HARD_BATTLE:
             std::cout << "遭遇强敌！\n";
             break;
         case EventSystem::RESURRECTION:
-            std::cout << "获得神秘复活祝福！\n";
+            std::cout << "获得祝福：再创世！\n";
             break;
         default:
             std::cout << "未知事件\n";
