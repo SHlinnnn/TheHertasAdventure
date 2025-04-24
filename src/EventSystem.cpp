@@ -1,5 +1,6 @@
 #include "EventSystem.h"
 #include <random>
+#include "Player.h"
 
 void EventSystem::triggerRandomEvent(Player& player, int stage) {
     std::random_device rd;
@@ -7,18 +8,17 @@ void EventSystem::triggerRandomEvent(Player& player, int stage) {
     std::discrete_distribution<> prob{20, 45, 20, 10, 5};
     
     switch(prob(gen)) {
-    case STAT_BOOST: {
-        std::uniform_int_distribution<> stat(0,2);
-        int value = 10 + stage*5;
-        // 增强逻辑
-        break;
-    }
-    case ELITE_BATTLE:
-        // 生成强化敌人
-        break;
-    case RESURRECTION:
-        player.hasResurrection = true;
-        std::cout << "获得神秘祝福【再创世】!\n";
-        break;
+        // ... 其他case不变
+        
+        case RESURRECTION:  // [MODIFIED] 新增专属逻辑
+            if (!player.hasResurrection) {
+                player.hasResurrection = true;
+                std::cout << "■■■ 获得星神秘礼【再创世】！■■■\n"
+                          << "效果：死亡后可复活一次，恢复全部生命\n";
+            } else {
+                std::cout << "神秘力量已存在，转化为生命强化！\n";
+                player.applyBlessing(50, 0, 0);
+            }
+            break;
     }
 }
