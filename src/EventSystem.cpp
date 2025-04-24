@@ -13,7 +13,7 @@ EventSystem::Result EventSystem::trigger(Player& player, int stage) {
             return NOTHING;
             
         case STAT_UP: {
-            int value = 15 + std::round(stage * 1.5);
+            int value = 50 + std::round(stage * 1.5);
             std::uniform_int_distribution<> stat(0, 2);
             switch(stat(gen)) {
                 case 0: player.applyBlessing(value, 0, 0); break;
