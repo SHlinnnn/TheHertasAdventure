@@ -1,71 +1,88 @@
 #include "GameSystem.h"
 #include "FileManager.h"
 #include <iostream>
+#include <limits>
 
-void showMainMenu() {
-    std::cout << "\n======== 大黑塔的冒险 ========\n"
-              << "1. 新的旅程\n"
-              << "2. 继续冒险\n"
-              << "3. 离开游戏\n"
-              << "请选择: ";
+std::cout<<"欢迎来到大黑塔的奇幻冒险”<<"\n";
+void clearInput() {
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
 Path selectPath() {
-    int choice;
-    std::cout << "\n=== 选择命途 ===\n"
-              << "1. 丰饶 - 生命加成\n"
-              << "2. 毁灭 - 攻击加成\n"
-              << "3. 巡猎 - 速度加成\n"
-              << "请选择: ";
-    std::cin >> choice;
-    return static_cast<Path>(choice - 1);
+    while (true) {
+        std::cout << "\n选择命途:\n"
+                  << "1. 丰饶（生命+50%）\n"
+                  << "2. 毁灭（攻击+50%）\n"
+                  << "3. 巡猎（速度+50%）\n"
+                  << "选择: ";
+        int choice;
+        if (std::cin >> choice && choice >= 1 && choice <= 3) {
+            return static_cast<Path>(choice - 1);
+        }
+        clearInput();
+    }
+}
+
+Difficulty selectDifficulty() {
+    while (true) {
+        std::cout << "\n选择难度:\n"
+                  << "1. 简单\n"
+                  << "2. 普通\n"
+                  << "3. 困难\n"
+                  << "选择: ";
+        int choice;
+        if (std::cin >> choice && choice >= 1 && choice <= 3) {
+            return static_cast<Difficulty>(choice - 1);
+        }
+        clearInput();
+    }
 }
 
 int main() {
-    GameSystem game;
-    
     try {
+        Player* player = nullptr;
+        
         while (true) {
-            showMainMenu();
+            std::cout << "\n===== 赫塔的冒险 =====\n"
+                      << "1. 新游戏\n"
+                      << "2. 加载存档\n"
+                      << "3. 退出\n"
+                      << "选择: ";
+            
             int choice;
             if (!(std::cin >> choice)) {
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                clearInput();
                 continue;
             }
 
             if (choice == 1) {
-                int diff;
-                std::cout << "\n=== 选择难度 ===\n"
-                          << "1. 简单\n2. 普通\n3. 困难\n选择: ";
-                std::cin >> diff;
-                
-                Path path = selectPath();
-                game.startGame(static_cast<Difficulty>(diff - 1));
-                game.getPlayer()->chosenPath = path;
-                game.mainLoop();
-                
+                auto diff = selectDifficulty();
+                auto path = selectPath();
+                player = new Player(path, diff);
+                break;
             } else if (choice == 2) {
                 std::string filename;
                 std::cout << "输入存档文件名: ";
                 std::cin >> filename;
-                
-                int stage;
-                if (FileManager::loadGame(*game.getPlayer(), stage, filename)) {
-                    game.setCurrentStage(stage);
-                    game.mainLoop();
-                } else {
-                    std::cerr << "存档加载失败！\n";
+                player = new Player(Path::ABUNDANCE, EASY); // 临时对象
+                if (FileManager::load(*player, filename)) {
+                    break;
                 }
-                
+                delete player;
+                std::cerr << "加载失败！\n";
             } else if (choice == 3) {
-                break;
+                return 0;
             }
         }
+
+        GameSystem game(player);
+        game.run();
+        
+        delete player;
     } catch (const std::exception& e) {
         std::cerr << "发生错误: " << e.what() << std::endl;
         return 1;
     }
-    
     return 0;
 }
