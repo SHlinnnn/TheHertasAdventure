@@ -14,15 +14,14 @@ struct SaveData {
 };
 #pragma pack(pop)
 
-bool FileManager::saveGame(const Player& player, int stage, 
-                          const std::string& filename) {
+bool FileManager::save(const Player& player, const std::string& filename) {
     std::ofstream file(filename, std::ios::binary);
     if (!file) return false;
 
     SaveData data{
         player.chosenPath,
-        player.gameDifficulty,
-        stage,
+        player.difficulty,
+        player.currentStage,
         player.bonusHP,
         player.bonusATK,
         player.bonusSPD,
@@ -34,8 +33,7 @@ bool FileManager::saveGame(const Player& player, int stage,
     return file.good();
 }
 
-bool FileManager::loadGame(Player& player, int& stage, 
-                          const std::string& filename) {
+bool FileManager::load(Player& player, std::string& filename) {
     std::ifstream file(filename, std::ios::binary);
     if (!file) return false;
 
@@ -50,7 +48,7 @@ bool FileManager::loadGame(Player& player, int& stage,
     player.bonusSPD = data.bonusSPD;
     player.gold = data.gold;
     player.hasResurrection = data.hasResurrection;
-    stage = data.currentStage;
+    player.currentStage = data.currentStage;
     
     return true;
 }
