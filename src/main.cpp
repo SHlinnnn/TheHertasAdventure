@@ -8,8 +8,6 @@ void clearInput() {
     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 }
 
-- player = new Player(Path::ABUNDANCE, EASY); // 临时对象
-+ player = new Player(Path::ABUNDANCE, Difficulty::EASY); // 带作用域
 Path selectPath() {
     while (true) {
         std::cout << "\n选择命途:\n"
@@ -65,7 +63,7 @@ int main() {
                 std::string filename;
                 std::cout << "输入存档文件名: ";
                 std::cin >> filename;
-                player = new Player(Path::ABUNDANCE, Difficulty::EASY); // 临时对象
+                player = new Player(Path::ABUNDANCE, Difficulty::EASY);
                 if (FileManager::load(*player, filename)) {
                     GameSystem game(player);
                     game.run();
