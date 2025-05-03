@@ -1,13 +1,15 @@
 #include "GameSystem.h"
+#include "FileManager.h"
 #include "Enemy.h"
 #include "Blessing.h"
 #include "EventSystem.h"
 #include <iostream>
 #include <limits>
-#include "FileManager.h"
 
+// 构造函数
 GameSystem::GameSystem(Player* player) 
     : player(player), currentStage(player->currentStage) {}
+
 void GameSystem::handleVictoryBlessing() {
     auto blessings = BlessingSystem::getShopBlessings(currentStage);
     for (auto& bless : blessings) { bless.cost = 0; }
@@ -31,6 +33,7 @@ void GameSystem::handleVictoryBlessing() {
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
 }
+
 void GameSystem::run() {
     while (currentStage <= 13) {
         std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
@@ -63,10 +66,12 @@ void GameSystem::run() {
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
 
-        // 原有逻辑处理
+        // 关键关卡强制战斗
         if (currentStage == 1 || currentStage == 5 || currentStage == 9 || currentStage == 13) {
             handleCombat();
-        } else {
+        } 
+        // 普通关卡处理选择
+        else {
             if (choice == 1) {
                 handleEvent();
             } else if (choice == 2) {
@@ -95,7 +100,7 @@ void GameSystem::handleCombat() {
     enemy.printStats();
     p.printStatus();
 
-    //速度机制
+    // 速度机制
     int playerSPD = p.getFinalSPD();
     int enemySPD = enemy.spd;
     int playerAttacks = 1, enemyAttacks = 1;
@@ -110,7 +115,7 @@ void GameSystem::handleCombat() {
         std::cout << "\n⚔ 双方速度相同!\n";
     }
 
-    //战斗循环
+    // 战斗循环
     while (enemy.hp > 0 && p.getFinalHP() > 0) {
         // 玩家攻击阶段
         for (int i = 0; i < playerAttacks; ++i) {
@@ -133,7 +138,7 @@ void GameSystem::handleCombat() {
         }
     }
 
-    //战斗结果处理
+    // 战斗结果处理
     if (p.getFinalHP() <= 0) {
         if (p.hasResurrection) {
             p.useResurrection();
@@ -151,7 +156,6 @@ void GameSystem::handleCombat() {
         }
     }
 }
-
 
 void GameSystem::handleShop() {
     auto blessings = BlessingSystem::getShopBlessings(currentStage);
@@ -190,7 +194,6 @@ void GameSystem::handleShop() {
     }
 }
 
-// 修改src/GameSystem.cpp的handleEvent函数
 void GameSystem::handleEvent() {
     auto result = EventSystem::trigger(*player, currentStage);
     switch (result) {
@@ -203,7 +206,7 @@ void GameSystem::handleEvent() {
         case EventSystem::STAT_DOWN:
             std::cout << "属性下降！\n";
             break;
-        case EventSystem::HARD_BATTLE:{
+        case EventSystem::HARD_BATTLE: {
             Enemy eliteEnemy(currentStage, player->difficulty);
             eliteEnemy.name = "繁育·虫灾";
             eliteEnemy.hp *= 3;  // 三倍血量
