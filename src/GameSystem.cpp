@@ -33,33 +33,47 @@ void GameSystem::run() {
     while (currentStage <= 13) {
         std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
         
-        // 关键关卡强制战斗
+        // 新增保存选项
+        std::cout << "0. 保存并退出\n";
+        std::cout << "选择行动：\n"
+                  << "1. 探索事件\n"
+                  << "2. 主动战斗\n";
+
+        int choice;
+        while (true) {
+            std::cout << "输入选项 (0-2): ";
+            if (std::cin >> choice) {
+                if (choice == 0) {
+                    player->currentStage = currentStage; // 同步关卡
+                    std::string filename;
+                    std::cout << "输入存档文件名: ";
+                    std::cin >> filename;
+                    if (FileManager::save(*player, filename)) {
+                        std::cout << "保存成功！\n";
+                    } else {
+                        std::cout << "保存失败！\n";
+                    }
+                    return; // 退出游戏循环
+                }
+                if (choice == 1 || choice == 2) break;
+            }
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+
+        // 原有逻辑处理
         if (currentStage == 1 || currentStage == 5 || currentStage == 9 || currentStage == 13) {
             handleCombat();
-        } 
-        // 普通关卡提供选择
-        else {
-            std::cout << "选择行动：\n"
-                      << "1. 探索事件\n"
-                      << "2. 主动战斗\n";
-            
-            int choice;
-            while (true) {
-                std::cin >> choice;
-                if (choice == 1) {
-                    handleEvent();
-                    break;
-                } else if (choice == 2) {
-                    handleCombat();
-                    break;
-                }
-                std::cout << "无效输入，请重新选择 (1-2): ";
-                std::cin.clear();
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        } else {
+            if (choice == 1) {
+                handleEvent();
+            } else if (choice == 2) {
+                handleCombat();
             }
         }
         
         currentStage++;
+        player->currentStage = currentStage; // 更新Player中的关卡
     }
     
     if (currentStage > 13) {
