@@ -1,242 +1,241 @@
-#include "GameSystem.h"
-#include "FileManager.h"
-#include "Enemy.h"
-#include "Blessing.h"
-#include "EventSystem.h"
-#include <iostream>
-#include <limits>
+#include "GameSystem.h"  
+#include "FileManager.h"  
+#include "Enemy.h"  
+#include "Blessing.h"  
+#include "EventSystem.h"  
+#include <iostream>  
+#include <limits>  
 
-// 构造函数
-GameSystem::GameSystem(Player* player) 
-    : player(player), currentStage(player->currentStage) {}
+// Constructor  
+GameSystem::GameSystem(Player* player)   
+    : player(player), currentStage(player->currentStage) {}  
 
-void GameSystem::handleVictoryBlessing() {
-    auto blessings = BlessingSystem::getShopBlessings(currentStage);
-    for (auto& bless : blessings) { bless.cost = 0; }
+void GameSystem::handleVictoryBlessing() {  
+    auto blessings = BlessingSystem::getShopBlessings(currentStage);  
+    for (auto& bless : blessings) { bless.cost = 0; }  
 
-    std::cout << "\n=== 请选择祝福 ===\n";
-    for (size_t i = 0; i < blessings.size(); ++i) {
-        std::cout << i+1 << ". " << blessings[i].name 
-                 << " (+HP:" << blessings[i].hp
-                 << " +ATK:" << blessings[i].atk
-                 << " +SPD:" << blessings[i].spd << ")\n";
-    }
+    std::cout << "\n=== Choose a Blessing ===\n";  
+    for (size_t i = 0; i < blessings.size(); ++i) {  
+        std::cout << i+1 << ". " << blessings[i].name   
+                 << " (+HP:" << blessings[i].hp  
+                 << " +ATK:" << blessings[i].atk  
+                 << " +SPD:" << blessings[i].spd << ")\n";  
+    }  
 
-    int choice;
-    while (true) {
-        std::cout << "选择 (1-" << blessings.size() << "): ";
-        if (std::cin >> choice && choice >= 1 && choice <= static_cast<int>(blessings.size())) {
-            BlessingSystem::apply(*player, blessings[choice-1]);
-            break;
-        }
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    }
-}
+    int choice;  
+    while (true) {  
+        std::cout << "Choice (1-" << blessings.size() << "): ";  
+        if (std::cin >> choice && choice >= 1 && choice <= static_cast<int>(blessings.size())) {  
+            BlessingSystem::apply(*player, blessings[choice-1]);  
+            break;  
+        }  
+        std::cin.clear();  
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  
+    }  
+}  
 
-void GameSystem::run() {
-    while (currentStage <= 13) {
-        std::cout << "\n===== 第 " << currentStage << " 关 =====" << std::endl;
-        
-        // 新增保存选项
-        std::cout << "0. 保存并退出\n";
-        std::cout << "选择行动：\n"
-                  << "1. 探索事件\n"
-                  << "2. 主动战斗\n";
+void GameSystem::run() {  
+    while (currentStage <= 13) {  
+        std::cout << "\n===== Stage " << currentStage << " =====" << std::endl;  
+          
+        // Save option  
+        std::cout << "0. Save & Exit\n";  
+        std::cout << "Choose action:\n"  
+                  << "1. Explore Event\n"  
+                  << "2. Engage Combat\n";  
 
-        int choice;
-        while (true) {
-            std::cout << "输入选项 (0-2): ";
-            if (std::cin >> choice) {
-                if (choice == 0) {
-                    player->currentStage = currentStage; // 同步关卡
-                    std::string filename;
-                    std::cout << "输入存档文件名: ";
-                    std::cin >> filename;
-                    if (FileManager::save(*player, filename)) {
-                        std::cout << "保存成功！\n";
-                    } else {
-                        std::cout << "保存失败！\n";
-                    }
-                    return; // 退出游戏循环
-                }
-                if (choice == 1 || choice == 2) break;
-            }
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-        }
+        int choice;  
+        while (true) {  
+            std::cout << "Input (0-2): ";  
+            if (std::cin >> choice) {  
+                if (choice == 0) {  
+                    player->currentStage = currentStage; // Sync stage  
+                    std::string filename;  
+                    std::cout << "Enter save filename: ";  
+                    std::cin >> filename;  
+                    if (FileManager::save(*player, filename)) {  
+                        std::cout << "Saved successfully!\n";  
+                    } else {  
+                        std::cout << "Save failed!\n";  
+                    }  
+                    return; // Exit loop  
+                }  
+                if (choice == 1 || choice == 2) break;  
+            }  
+            std::cin.clear();  
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  
+        }  
 
-        // 关键关卡强制战斗
-        if (currentStage == 1 || currentStage == 5 || currentStage == 9 || currentStage == 13) {
-            handleCombat();
-        } 
-        // 普通关卡处理选择
-        else {
-            if (choice == 1) {
-                handleEvent();
-            } else if (choice == 2) {
-                handleCombat();
-            }
-        }
-        
-        currentStage++;
-        player->currentStage = currentStage; // 更新Player中的关卡
-    }
-    
-    if (currentStage > 13) {
-        std::cout << "\n★★★★★ 通关成功！ ★★★★★\n";
-    }
-}
+        // Key stage combat  
+        if (currentStage == 1 || currentStage == 5 || currentStage == 9 || currentStage == 13) {  
+            handleCombat();  
+        }   
+        // Normal stage  
+        else {  
+            if (choice == 1) {  
+                handleEvent();  
+            } else if (choice == 2) {  
+                handleCombat();  
+            }  
+        }  
+          
+        currentStage++;  
+        player->currentStage = currentStage; // Update stage  
+    }  
+      
+    if (currentStage > 13) {  
+        std::cout << "\n★★★★★ Stage Clear! ★★★★★\n";  
+    }  
+}  
 
-void GameSystem::handleCombat() {
-    if (currentStage == 5 || currentStage == 9 || currentStage == 13) {
-        handleShop();
-    }
+void GameSystem::handleCombat() {  
+    if (currentStage == 5 || currentStage == 9 || currentStage == 13) {  
+        handleShop();  
+    }  
 
-    Enemy enemy(currentStage, player->difficulty);
-    Player& p = *player;
-    
-    std::cout << "\n====== 战斗开始 ======\n";
-    enemy.printStats();
-    p.printStatus();
+    Enemy enemy(currentStage, player->difficulty);  
+    Player& p = *player;  
+      
+    std::cout << "\n====== Combat Start ======\n";  
+    enemy.printStats();  
+    p.printStatus();  
 
-    // 速度机制
-    int playerSPD = p.getFinalSPD();
-    int enemySPD = enemy.spd;
-    int playerAttacks = 1, enemyAttacks = 1;
+    // SPD mechanism  
+    int playerSPD = p.getFinalSPD();  
+    int enemySPD = enemy.spd;  
+    int playerAttacks = 1, enemyAttacks = 1;  
 
-    if (playerSPD > enemySPD) {
-        playerAttacks = playerSPD / enemySPD;
-        std::cout << "\n✦ 速度优势! 你将攻击 " << playerAttacks << " 次!\n";
-    } else if (enemySPD > playerSPD) {
-        enemyAttacks = enemySPD / playerSPD;
-        std::cout << "\n⚠ 敌人速度更快! 将攻击 " << enemyAttacks << " 次!\n";
-    } else {
-        std::cout << "\n⚔ 双方速度相同!\n";
-    }
+    if (playerSPD > enemySPD) {  
+        playerAttacks = playerSPD / enemySPD;  
+        std::cout << "\n✦ SPD Advantage! You attack " << playerAttacks << " times!\n";  
+    } else if (enemySPD > playerSPD) {  
+        enemyAttacks = enemySPD / playerSPD;  
+        std::cout << "\n⚠ Enemy SPD Higher! Attacks " << enemyAttacks << " times!\n";  
+    } else {  
+        std::cout << "\n⚔ SPD Equal!\n";  
+    }  
 
-    // 战斗循环
-    while (enemy.hp > 0 && p.getFinalHP() > 0) {
-        // 玩家攻击阶段
-        for (int i = 0; i < playerAttacks; ++i) {
-            int damage = p.getFinalATK();
-            enemy.hp -= damage;
-            std::cout << "[攻击" << i+1 << "] → 造成 " << damage 
-                      << " 伤害，敌人剩余: " << std::max(enemy.hp, 0) << "\n";
-            if (enemy.hp <= 0) break;
-        }
+    // Combat loop  
+    while (enemy.hp > 0 && p.getFinalHP() > 0) {  
+        // Player attack  
+        for (int i = 0; i < playerAttacks; ++i) {  
+            int damage = p.getFinalATK();  
+            enemy.hp -= damage;  
+            std::cout << "[Attack" << i+1 << "] → Dealt " << damage   
+                      << " damage. Enemy HP: " << std::max(enemy.hp, 0) << "\n";  
+            if (enemy.hp <= 0) break;  
+        }  
 
-        // 敌人攻击阶段
-        if (enemy.hp > 0) {
-            for (int i = 0; i < enemyAttacks; ++i) {
-                int damage = enemy.atk;
-                p.baseHP -= damage;
-                std::cout << "[受击" << i+1 << "] ← 受到 " << damage 
-                          << " 伤害，剩余生命: " << p.getFinalHP() << "\n";
-                if (p.getFinalHP() <= 0) break;
-            }
-        }
-    }
+        // Enemy attack  
+        if (enemy.hp > 0) {  
+            for (int i = 0; i < enemyAttacks; ++i) {  
+                int damage = enemy.atk;  
+                p.baseHP -= damage;  
+                std::cout << "[Hit" << i+1 << "] ← Took " << damage   
+                          << " damage. Your HP: " << p.getFinalHP() << "\n";  
+                if (p.getFinalHP() <= 0) break;  
+            }  
+        }  
+    }  
 
-    // 战斗结果处理
-    if (p.getFinalHP() <= 0) {
-        if (p.hasResurrection) {
-            p.useResurrection();
-            std::cout << "\n再创世!\n";
-        } else {
-            throw std::runtime_error("战斗失败");
-        }
-    }
+    // Result  
+    if (p.getFinalHP() <= 0) {  
+        if (p.hasResurrection) {  
+            p.useResurrection();  
+            std::cout << "\nResurrected!\n";  
+        } else {  
+            throw std::runtime_error("Combat Failed");  
+        }  
+    }  
 
-    p.gold += 50;
-    std::cout << "获得50金币，当前总计: " << p.gold << std::endl;
-    if (player->getFinalHP() > 0) {
-        if (currentStage != 13) {
-            handleVictoryBlessing();
-        }
-    }
-}
+    p.gold += 50;  
+    std::cout << "Gained 50 Gold. Total: " << p.gold << std::endl;  
+    if (player->getFinalHP() > 0) {  
+        if (currentStage != 13) {  
+            handleVictoryBlessing();  
+        }  
+    }  
+}  
 
-void GameSystem::handleShop() {
-    auto blessings = BlessingSystem::getShopBlessings(currentStage);
-    
-    std::cout << "\n=== 星际商店 ===\n"<<"当前金币： "<<player->gold<<"\n";
-    for (size_t i = 0; i < blessings.size(); ++i) {
-        std::cout << i+1 << ". " << blessings[i].name 
-                 << " (" << blessings[i].cost << "金币)"
-                 << " +HP:" << blessings[i].hp
-                 << " +ATK:" << blessings[i].atk
-                 << " +SPD:" << blessings[i].spd << "\n";
-    }
-    
-    while (true) {
-        int choice;
-        std::cout << "\n选择 (0离开): ";
-        if (!(std::cin >> choice)) {
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-            continue;
-        }
-        
-        if (choice == 0) break;
-        if (choice < 1 || choice > static_cast<int>(blessings.size())) {
-            continue;
-        }
-        
-        Blessing selected = blessings[choice-1];
-        if (player->gold >= selected.cost) {
-            BlessingSystem::apply(*player, selected);
-            player->gold -= selected.cost;
-            std::cout << "购买成功: " << selected.name << "\n";
-        } else {
-            std::cout << "金币不足！\n";
-        }
-    }
-}
+void GameSystem::handleShop() {  
+    auto blessings = BlessingSystem::getShopBlessings(currentStage);  
+      
+    std::cout << "\n=== Star Market ===\n"<<"Current Gold: "<<player->gold<<"\n";  
+    for (size_t i = 0; i < blessings.size(); ++i) {  
+        std::cout << i+1 << ". " << blessings[i].name   
+                 << " (" << blessings[i].cost << " Gold)"  
+                 << " +HP:" << blessings[i].hp  
+                 << " +ATK:" << blessings[i].atk  
+                 << " +SPD:" << blessings[i].spd << "\n";  
+    }  
+      
+    while (true) {  
+        int choice;  
+        std::cout << "\nChoice (0 to leave): ";  
+        if (!(std::cin >> choice)) {  
+            std::cin.clear();  
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');  
+            continue;  
+        }  
+          
+        if (choice == 0) break;  
+        if (choice < 1 || choice > static_cast<int>(blessings.size())) {  
+            continue;  
+        }  
+          
+        Blessing selected = blessings[choice-1];  
+        if (player->gold >= selected.cost) {  
+            BlessingSystem::apply(*player, selected);  
+            player->gold -= selected.cost;  
+            std::cout << "Purchased: " << selected.name << "\n";  
+        } else {  
+            std::cout << "Insufficient Gold!\n";  
+        }  
+    }  
+}  
 
-void GameSystem::handleEvent() {
-    auto result = EventSystem::trigger(*player, currentStage);
-    switch (result) {
-        case EventSystem::NOTHING:
-            std::cout << "无事发生...\n";
-            break;
-        case EventSystem::STAT_UP:
-            std::cout << "属性提升！\n";
-            break;
-        case EventSystem::STAT_DOWN:
-            std::cout << "属性下降！\n";
-            break;
-        case EventSystem::HARD_BATTLE: {
-            Enemy eliteEnemy(currentStage, player->difficulty);
-            eliteEnemy.name = "繁育·虫灾";
-            eliteEnemy.hp *= 3;  // 三倍血量
-            eliteEnemy.atk += 30; // 攻击强化
-            
-            std::cout << "\n███ 遭遇" << eliteEnemy.name << "！███\n";
-            std::cout << "生命值:" << eliteEnemy.hp << " 攻击力:" << eliteEnemy.atk << "\n";
+void GameSystem::handleEvent() {  
+    auto result = EventSystem::trigger(*player, currentStage);  
+    switch (result) {  
+        case EventSystem::NOTHING:  
+            std::cout << "Nothing happened...\n";  
+            break;  
+        case EventSystem::STAT_UP:  
+            std::cout << "Stats increased!\n";  
+            break;  
+        case EventSystem::STAT_DOWN:  
+            std::cout << "Stats decreased!\n";  
+            break;  
+        case EventSystem::HARD_BATTLE: {  
+            Enemy eliteEnemy(currentStage, player->difficulty);  
+            eliteEnemy.name = "Swarm: Propagation";  
+            eliteEnemy.hp *= 3;  // Triple HP  
+            eliteEnemy.atk += 30; // ATK boost  
+              
+            std::cout << "\n███ Encountered " << eliteEnemy.name << "! ███\n";  
+            std::cout << "HP:" << eliteEnemy.hp << " ATK:" << eliteEnemy.atk << "\n";  
 
-            // 强制进行特殊战斗
-            int originalHP = player->baseHP;
-            player->baseHP = player->getFinalHP(); // 保存当前血量
-            try {
-                handleCombat(); // 复用普通战斗逻辑
-                player->applyBlessing(30, 20, 15); // 胜利奖励
-                std::cout << "成功驱逐虫群！属性提升！\n";
-            } catch (...) {
-                player->baseHP = originalHP; // 恢复血量
-                throw std::runtime_error("虫群吞噬了你的意识...");
-            }
-            break;
-        }
-        case EventSystem::RESURRECTION:
-            std::cout << "获得祝福：再创世！\n";
-            break;
-        default:
-            std::cout << "未知事件\n";
-            break;
-    }
-}
+            // Force combat  
+            int originalHP = player->baseHP;  
+            player->baseHP = player->getFinalHP(); // Save HP  
+            try {  
+                handleCombat();  
+                player->applyBlessing(30, 20, 15); // Victory bonus  
+                std::cout << "Victory! Stats boosted!\n";  
+            } catch (...) {  
+                player->baseHP = originalHP; // Restore HP  
+                throw std::runtime_error("The Swarm consumed you...");  
+            }  
+            break;  
+        }  
+        case EventSystem::RESURRECTION:  
+            std::cout << "Blessing gained: Resurrection!\n";  
+            break;  
+        default:  
+            std::cout << "Unknown event\n";  
+            break;  
+    }  
+}  
 
-int GameSystem::getCurrentStage() const {
-    return currentStage;
-}
+int GameSystem::getCurrentStage() const {  
+    return currentStage;  
