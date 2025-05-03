@@ -4,8 +4,10 @@
 #include "EventSystem.h"
 #include <iostream>
 #include <limits>
+#include "FileManager.h"
 
-GameSystem::GameSystem(Player* player) : player(player) {}
+GameSystem::GameSystem(Player* player) 
+    : player(player), currentStage(player->currentStage) {}
 void GameSystem::handleVictoryBlessing() {
     auto blessings = BlessingSystem::getShopBlessings(currentStage);
     for (auto& bless : blessings) { bless.cost = 0; }
