@@ -10,7 +10,7 @@ class GameSystem {
     void handleEvent();
 
 public:
-    explicit GameSystem(Player* player) : player(player), currentStage(player->currentStage) {}  // 构造函数修改
+    explicit GameSystem(Player* player);
     void run();
     int getCurrentStage() const;
 private:
