@@ -4,7 +4,7 @@
 
 class GameSystem {
     Player* player;
-    int currentStage;  // 从Player初始化
+    int currentStage;
     void handleCombat();
     void handleShop();
     void handleEvent();
