@@ -34,9 +34,9 @@ void Player::useResurrection() {
 }
 
 void Player::printStatus() const {
-    std::cout << "\n=== 玩家状态 ===\n"
-              << "生命: " << getFinalHP() << "\n"
-              << "攻击: " << getFinalATK() << "\n"
-              << "速度: " << getFinalSPD() << "\n"
-              << "金币: " << gold << "\n";
+    std::cout << "\n=== Player Status ===\n"
+              << "HP: " << getFinalHP() << "\n"
+              << "ATK: " << getFinalATK() << "\n"
+              << "SPD: " << getFinalSPD() << "\n"
+              << "Gold: " << gold << "\n";
 }
