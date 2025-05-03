@@ -37,7 +37,6 @@ Difficulty selectDifficulty() {
         clearInput();
     }
 }
-
 int main() {
     try {
         Player* player = nullptr;
@@ -64,8 +63,10 @@ int main() {
                 std::string filename;
                 std::cout << "输入存档文件名: ";
                 std::cin >> filename;
-                player = new Player(Path::ABUNDANCE, EASY); // 临时对象
+                player = new Player(Path::ABUNDANCE, Difficulty::EASY); // 临时对象
                 if (FileManager::load(*player, filename)) {
+                    GameSystem game(player);
+                    game.run();
                     break;
                 }
                 delete player;
@@ -75,10 +76,11 @@ int main() {
             }
         }
 
-        GameSystem game(player);
-        game.run();
-        
-        delete player;
+        if (player != nullptr) {
+            GameSystem game(player);
+            game.run();
+            delete player;
+        }
     } catch (const std::exception& e) {
         std::cerr << "发生错误: " << e.what() << std::endl;
         return 1;
