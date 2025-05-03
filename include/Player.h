@@ -2,8 +2,7 @@
 #include <string>
 
 enum class Path { ABUNDANCE, DESTRUCTION, HUNT };
-enum class Difficulty { EASY, NORMAL, HARD };
-
+#include "Difficulty.h" 
 class Player {
 public:
     Path chosenPath;
