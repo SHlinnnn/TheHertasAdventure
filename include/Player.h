@@ -15,7 +15,7 @@ public:
     int bonusSPD = 0;
     int gold = 0;
     bool hasResurrection = false;
-    int currentStage = 1;  // 新增关卡进度字段
+    int currentStage = 1;
 
     Player(Path path, Difficulty diff);
     
